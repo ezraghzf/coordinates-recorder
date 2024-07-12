@@ -1,28 +1,35 @@
 <script setup>
+import CoordsTracker from './components/CoordsTracker.vue';
+import CoordsListItem from './components/CoordsListItem.vue';
+import { useGeolocation } from '@vueuse/core'
+import { watch, ref } from 'vue'
+
+const coordsArr = ref([])
+const { coords } = useGeolocation()
+const saveCoords = () => {
+  const coordSnapshot = {lat: coords.value.latitude, long: coords.value.longitude, alt: coords.value.altitude, timestamp: new Date()}
+  coordsArr.value.push(coordSnapshot)
+}
+const removeCoords = (index) => {
+  coordsArr.value.splice(index,1)
+}
 </script>
 
 <template>
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+  <CoordsTracker :coords="coords"></CoordsTracker>
+  <button type="button" @click="saveCoords">New</button>
+  <div class="list-item-container">
+    <CoordsListItem v-for="(cord, idx) in coordsArr" :key="idx" :index="idx" @remove="removeCoords">
+      {{ cord }}
+    </CoordsListItem>
   </div>
+
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+.list-item-container{
+  gap: 5px;
+  display: flex;
+  flex-direction: column;
 }
 </style>
